@@ -1,0 +1,89 @@
+/* Diseño del Navbar */
+.navbar {
+  background-color: #3e8e41; /* Color del fondo */
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: white; /* Color del texto de los enlaces */
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  color: #dcdcdc; /* Color al pasar el mouse por los enlaces */
+}
+
+/* Sección "Nosotros" */
+#nosotros {
+  padding: 50px 0;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+#nosotros h1 {
+  font-size: 2.5rem;
+  color: #3e8e41;
+}
+
+#nosotros p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+#nosotros img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Diseño de las tarjetas de Servicios */
+.card {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #3e8e41;
+}
+
+.card-body {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Estilo del Formulario de Contacto */
+#contacto {
+  background-color: #f1f1f1;
+  padding: 50px 0;
+}
+
+#contacto h2 {
+  font-size: 2rem;
+  text-align: center;
+  color: #3e8e41;
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Estilo del Footer */
+footer {
+  background-color: #3e8e41;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+
+footer a {
+  color: #dcdcdc;
+}
+
+footer a:hover {
+  color: white;
+}
