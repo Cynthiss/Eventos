@@ -115,3 +115,21 @@ body.dark-mode button, body.dark-mode .form-control {
   background-color: #444;
   color: #eaeaea;
 }
+
+#fechaReserva h2 {
+    color: #3e8e41;
+}
+
+#fechaReserva .card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+#fechaReserva .card:hover {
+    transform: scale(1.03);
+}
+
+#dateStatus {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
