@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santos Garden Venue - Salón de Eventos</title>
+    <!-- Vinculando Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> <!-- Archivo CSS personalizado -->
+</head>
+<body>
+
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Santos Garden Venue</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#about">Nosotros</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#services">Servicios</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">Contacto</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Agregar botón de modo oscuro en el Navbar -->
+    <button id="darkModeButton" class="btn btn-outline-light">🌙</button>
+
+    <!-- Sección "Nosotros" -->
+    <section id="about" class="container text-center my-5">
+        <h2>Bienvenidos a Santos Garden Venue</h2>
+        <p>El lugar perfecto para tus eventos especiales. Ya sea boda, conferencia, fiesta o cualquier celebración, tenemos el espacio ideal para ti.</p>
+        <img src="assets/salon.jpg" alt="Santos Garden Venue" class="img-fluid rounded">
+    </section>
+
+    <!-- Sección de Servicios -->
+    <section id="services" class="container my-5">
+        <h2 class="text-center">Nuestros Servicios</h2>
+        <div class="row">
+            <!-- Card de Servicio 1 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="assets/boda.jpg" class="card-img-top" alt="Boda">
+                    <div class="card-body">
+                        <h5 class="card-title">Bodas</h5>
+                        <p class="card-text">Ofrecemos un espacio único para tu boda, desde la ceremonia hasta la recepción.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card de Servicio 2 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="assets/conferencias.jpg" class="card-img-top" alt="Conferencias">
+                    <div class="card-body">
+                        <h5 class="card-title">Conferencias</h5>
+                        <p class="card-text">Contamos con el equipo y el espacio adecuado para conferencias y reuniones corporativas.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Card de Servicio 3 -->
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="assets/fiestas.jpg" class="card-img-top" alt="Fiestas">
+                    <div class="card-body">
+                        <h5 class="card-title">Fiestas</h5>
+                        <p class="card-text">Tu fiesta perfecta, con amplios espacios para una celebración inolvidable.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Reservar Fecha del Salón -->
+    <section id="fechaReserva" class="container my-5 text-center">
+        <h2>Reserva una Fecha para tu Evento</h2>
+        <p>Selecciona una fecha para verificar la disponibilidad del salón.</p>
+
+        <div class="card p-4 mx-auto" style="max-width: 400px;">
+            <label for="eventDate" class="form-label">Elige una fecha:</label>
+            <input type="date" id="eventDate" class="form-control mb-3" required>
+
+            <button id="reserveDate" class="btn btn-primary">Verificar Fecha</button>
+        </div>
+
+        <p id="dateStatus" class="mt-3"></p> <!-- Mensaje de confirmación -->
+    </section>
+
+    <!-- Sección de Contacto -->
+    <section id="contact" class="container my-5">
+        <h2 class="text-center">Contáctanos</h2>
+        <form id="contactForm">
+            <div class="mb-3">
+                <label for="name" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Mensaje</label>
+                <textarea class="form-control" id="message" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+
+        <!-- Mensaje de estado -->
+        <p id="contactStatus" class="mt-3 text-center"></p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <p>&copy; 2025 Santos Garden Venue. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Vinculando Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Vinculando archivo JavaScript para funcionalidades -->
+    <script src="app.js"></script>
+</body>
+</html>

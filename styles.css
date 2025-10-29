@@ -1,0 +1,135 @@
+/* Diseño del Navbar */
+.navbar {
+  background-color: #46e24b; /* Color del fondo */
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: white; /* Color del texto de los enlaces */
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  color: #dcdcdc; /* Color al pasar el mouse por los enlaces */
+}
+
+/* Sección "Nosotros" */
+#nosotros {
+  padding: 50px 0;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+#nosotros h1 {
+  font-size: 2.5rem;
+  color: #3e8e41;
+}
+
+#nosotros p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+#nosotros img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Diseño de las tarjetas de Servicios */
+.card {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 4px 8px rgba(6, 99, 37, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #3e8e41;
+}
+
+.card-body {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Estilo del Formulario de Contacto */
+#contacto {
+  background-color: #f1f1f1;
+  padding: 50px 0;
+}
+
+#contacto h2 {
+  font-size: 2rem;
+  text-align: center;
+  color: #3e8e41;
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Estilo del Footer */
+footer {
+  background-color: #065f09;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+
+footer a {
+  color: #dcdcdc;
+}
+
+footer a:hover {
+  color: white;
+}
+
+/* Variables para el modo oscuro */
+body.dark-mode {
+  background-color: #121212;
+  color: #eaeaea;
+}
+
+body.dark-mode .navbar {
+  background-color: #333;
+}
+
+body.dark-mode .card {
+  background-color: #2a2a2a;
+  color: #eaeaea;
+}
+
+body.dark-mode .card-title {
+  color: #eaeaea;
+}
+
+body.dark-mode footer {
+  background-color: #333;
+}
+
+body.dark-mode button, body.dark-mode .form-control {
+  background-color: #444;
+  color: #eaeaea;
+}
+
+#fechaReserva h2 {
+    color: #3e8e41;
+}
+
+#fechaReserva .card {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+#fechaReserva .card:hover {
+    transform: scale(1.03);
+}
+
+#dateStatus {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
