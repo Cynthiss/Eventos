@@ -1,6 +1,6 @@
 /* Diseño del Navbar */
 .navbar {
-  background-color: #3e8e41; /* Color del fondo */
+  background-color: #46e24b; /* Color del fondo */
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -37,7 +37,7 @@
 .card {
   border-radius: 10px;
   border: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(6, 99, 37, 0.1);
   transition: transform 0.3s ease;
 }
 
@@ -74,7 +74,7 @@ form {
 
 /* Estilo del Footer */
 footer {
-  background-color: #3e8e41;
+  background-color: #065f09;
   color: white;
   padding: 20px 0;
   text-align: center;
@@ -86,4 +86,32 @@ footer a {
 
 footer a:hover {
   color: white;
+}
+
+/* Variables para el modo oscuro */
+body.dark-mode {
+  background-color: #121212;
+  color: #eaeaea;
+}
+
+body.dark-mode .navbar {
+  background-color: #333;
+}
+
+body.dark-mode .card {
+  background-color: #2a2a2a;
+  color: #eaeaea;
+}
+
+body.dark-mode .card-title {
+  color: #eaeaea;
+}
+
+body.dark-mode footer {
+  background-color: #333;
+}
+
+body.dark-mode button, body.dark-mode .form-control {
+  background-color: #444;
+  color: #eaeaea;
 }
