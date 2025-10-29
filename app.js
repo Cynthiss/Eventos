@@ -45,7 +45,7 @@ function reserveDate() {
     if (selectedDate) {
         if (isDateAvailable(selectedDate)) {
             reservedDates.push(selectedDate);  // Guardamos la fecha en el arreglo de fechas reservadas
-            statusMessage.textContent = `🎉 ¡La fecha ${selectedDate} ha sido reservada exitosamente!`;
+            statusMessage.textContent = `🎉 La fecha ${selectedDate} sigue disponible ¡Reserva YA !`;
             statusMessage.style.color = "green";
         } else {
             statusMessage.textContent = `❌ Lo siento, la fecha ${selectedDate} ya está reservada.`;

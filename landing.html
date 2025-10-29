@@ -83,13 +83,13 @@
     <!-- Sección de Reservar Fecha del Salón -->
     <section id="fechaReserva" class="container my-5 text-center">
         <h2>Reserva una Fecha para tu Evento</h2>
-        <p>Selecciona una fecha para reservar el salón.</p>
+        <p>Selecciona una fecha para verificar la disponibilidad del salón.</p>
 
         <div class="card p-4 mx-auto" style="max-width: 400px;">
             <label for="eventDate" class="form-label">Elige una fecha:</label>
             <input type="date" id="eventDate" class="form-control mb-3" required>
 
-            <button id="reserveDate" class="btn btn-primary">Reservar Fecha</button>
+            <button id="reserveDate" class="btn btn-primary">Verificar Fecha</button>
         </div>
 
         <p id="dateStatus" class="mt-3"></p> <!-- Mensaje de confirmación -->
@@ -98,7 +98,7 @@
     <!-- Sección de Contacto -->
     <section id="contact" class="container my-5">
         <h2 class="text-center">Contáctanos</h2>
-        <form>
+        <form id="contactForm">
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre</label>
                 <input type="text" class="form-control" id="name" required>
@@ -113,6 +113,9 @@
             </div>
             <button type="submit" class="btn btn-primary">Enviar</button>
         </form>
+
+        <!-- Mensaje de estado -->
+        <p id="contactStatus" class="mt-3 text-center"></p>
     </section>
 
     <!-- Footer -->
