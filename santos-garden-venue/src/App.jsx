@@ -4,7 +4,7 @@ import Home from "./pages/Home.jsx";
 import Events from "./pages/Events.jsx";
 import Admin from "./pages/Admin.jsx";
 import Contact from "./pages/Contact.jsx";
-import "./App.css";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
   return (
@@ -14,8 +14,15 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/events" element={<Events />} />
-          <Route path="/admin" element={<Admin />} />
           <Route path="/contact" element={<Contact />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
     </>
