@@ -1,106 +1,223 @@
-import { useState, useEffect } from "react";
-import { api } from "../services/api.js"; // Asegúrate de que tu API esté funcionando correctamente
+// src/components/Events.jsx
+import { useEffect, useState } from "react";
+import { api } from "../services/api";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(""); // Fecha seleccionada para comprobar disponibilidad
-  const [message, setMessage] = useState(""); // Mensaje que muestra el estado de la disponibilidad
-  const [availableEvents, setAvailableEvents] = useState([]); // Lista de eventos públicos disponibles
+  const [search, setSearch] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [availabilityMsg, setAvailabilityMsg] = useState("");
+  const [statusMsg, setStatusMsg] = useState("");
 
-  // Cargar eventos desde el backend
+  // Cargar eventos desde la API (MongoDB)
   useEffect(() => {
-    api.getEvents().then((data) => {
-      setEvents(data);
-      // Filtrar los eventos públicos
-      const publicEvents = data.filter((event) => event.type === "public");
-      setAvailableEvents(publicEvents);
-    });
+    api
+      .getEvents()
+      .then(setEvents)
+      .catch((err) => console.error("Error cargando eventos:", err));
   }, []);
 
-  // Cambiar la fecha seleccionada
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value);
-  };
+  const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-  // Verificar disponibilidad de la fecha
-  const checkAvailability = () => {
-    const selected = new Date(selectedDate);
-    const isPastDate = selected < new Date();
-    
-    // Verificar si la fecha seleccionada es en el pasado
-    if (isPastDate) {
-      setMessage("La fecha seleccionada ya ha pasado. Elige una fecha futura.");
+  // Filtrar solo eventos públicos + búsqueda
+  const filteredPublicEvents = events
+    .filter((ev) => ev.type === "public")
+    .filter((ev) => {
+      const text = `${ev.title ?? ""} ${ev.place ?? ""}`.toLowerCase();
+      return text.includes(search.toLowerCase());
+    });
+
+  // Reservar asiento(s) en un evento público
+  const handleReserveSeat = async (ev) => {
+    setStatusMsg("");
+
+    // No permitir reservar en fechas pasadas
+    if (ev.date < todayStr) {
+      setStatusMsg("No puedes reservar asientos en un evento que ya pasó.");
       return;
     }
 
-    // Buscar si ya existe un evento en la fecha seleccionada
-    const existingEvent = events.find((event) => event.date === selectedDate);
-    
-    // Si hay un evento en esa fecha, mostrar que está ocupada
-    if (existingEvent) {
-      setMessage("La fecha seleccionada está ocupada o no está disponible para reservar.");
+    if (!ev.guests || ev.guests <= 0) {
+      setStatusMsg("Este evento ya no tiene asientos disponibles.");
       return;
     }
 
-    // Si no hay conflictos de fecha, permitir la reserva
-    setMessage(`La fecha ${selectedDate} está disponible para reservar.`);
+    // Pedir cantidad de asientos al usuario
+    const qtyStr = window.prompt(
+      `¿Cuántos asientos deseas reservar para "${ev.title}"? (Disponibles: ${ev.guests})`,
+      "1"
+    );
+
+    // Si canceló o dejó vacío
+    if (!qtyStr) return;
+
+    const qty = parseInt(qtyStr, 10);
+
+    // Validaciones de la cantidad
+    if (isNaN(qty) || qty <= 0) {
+      setStatusMsg("Debes ingresar una cantidad válida de asientos.");
+      return;
+    }
+
+    if (qty > ev.guests) {
+      setStatusMsg(
+        `Solo hay ${ev.guests} asientos disponibles. No puedes reservar ${qty}.`
+      );
+      return;
+    }
+
+    const confirmReserve = window.confirm(
+      `¿Confirmas la reserva de ${qty} asiento(s) para "${ev.title}"?`
+    );
+    if (!confirmReserve) return;
+
+    try {
+      const updated = await api.updateEvent(ev._id, {
+        ...ev,
+        guests: ev.guests - qty, // restamos la cantidad elegida
+      });
+
+      // Actualizar estado local
+      setEvents((prev) =>
+        prev.map((e) => (e._id === ev._id ? updated : e))
+      );
+
+      setStatusMsg(
+        `Reserva realizada con éxito. Asientos restantes: ${updated.guests}`
+      );
+    } catch (err) {
+      console.error(err);
+      setStatusMsg("Ocurrió un error al reservar los asientos.");
+    }
   };
 
-  // Función para reservar asiento
-  const handleReserve = (event) => {
-    // Aquí agregarías la lógica para realizar la reserva (por ejemplo, llamar a una API).
-    alert(`¡Has reservado un asiento para el evento: ${event.title} el ${event.date}!`);
+  // Consultar disponibilidad del salón por fecha
+  const checkDateAvailability = () => {
+    setAvailabilityMsg("");
+
+    if (!selectedDate) {
+      setAvailabilityMsg("Por favor selecciona una fecha.");
+      return;
+    }
+
+    if (selectedDate < todayStr) {
+      setAvailabilityMsg("La fecha seleccionada ya pasó. Elige una fecha futura.");
+      return;
+    }
+
+    const dateTaken = events.some((ev) => ev.date === selectedDate);
+
+    if (dateTaken) {
+      setAvailabilityMsg(
+        `La fecha ${selectedDate} ya tiene un evento programado. Elige otra fecha.`
+      );
+    } else {
+      setAvailabilityMsg(
+        `La fecha ${selectedDate} está disponible para reservar el salón.`
+      );
+    }
   };
 
   return (
-    <section id="events" className="container my-5">
-      <h2 className="text-center mb-4">Consulta las Fechas Disponibles</h2>
-      
-      {/* Campo de selección de fecha */}
-      <input
-        type="date"
-        className="form-control mb-3"
-        onChange={handleDateChange}
-        value={selectedDate}
-      />
-      <button className="btn btn-primary" onClick={checkAvailability}>
-        Verificar Disponibilidad
-      </button>
+    <section className="container my-5">
+      <h1 className="text-center mb-4">Eventos</h1>
 
-      {/* Mostrar el mensaje de disponibilidad */}
-      {message && <p className="mt-3 text-center">{message}</p>}
+      {/* Buscador */}
+      <div className="row mb-4">
+        <div className="col-md-6 mx-auto">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Buscar por título o lugar..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      </div>
 
-      {/* Filtrado de eventos públicos */}
-      <div className="row">
-        {availableEvents.length === 0 ? (
-          <p>No hay eventos disponibles para reservar</p>
-        ) : (
-          availableEvents.map((event) => (
-            <div key={event.id} className="col-md-4">
-              <div className="card">
-                <img src={event.image} alt={event.title} className="card-img-top" />
+      {/* Consulta de fecha del salón */}
+      <div className="row mb-4">
+        <div className="col-md-4">
+          <label className="form-label">Consultar disponibilidad del salón</label>
+          <input
+            type="date"
+            className="form-control"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3 d-flex align-items-end">
+          <button
+            className="btn btn-outline-primary w-100"
+            onClick={checkDateAvailability}
+          >
+            Verificar fecha
+          </button>
+        </div>
+        <div className="col-md-5 d-flex align-items-end">
+          {availabilityMsg && (
+            <p className="mb-0 text-muted">{availabilityMsg}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Mensajes de estado de reservas */}
+      {statusMsg && (
+        <div className="alert alert-info text-center" role="alert">
+          {statusMsg}
+        </div>
+      )}
+
+      {/* Lista de eventos públicos */}
+      {filteredPublicEvents.length === 0 ? (
+        <p className="text-center mt-4">
+          No hay eventos públicos que coincidan con tu búsqueda.
+        </p>
+      ) : (
+        <div className="row">
+          {filteredPublicEvents.map((ev) => (
+            <div key={ev._id} className="col-md-6 mb-4">
+              <div className="card shadow-sm">
                 <div className="card-body">
-                  <h5 className="card-title">{event.title}</h5>
-                  <p className="card-text">{event.date}</p>
-                  <p className="card-text">{event.place}</p>
-                  <p className="card-text">
-                    {event.type === "public" ? "Abierto al público" : "Evento privado"}
+                  <h5 className="card-title">{ev.title}</h5>
+                  <p className="card-text mb-1">
+                    <strong>Fecha:</strong> {ev.date}
                   </p>
-                  {/* Solo mostrar botón de reserva si es público */}
-                  {event.type === "public" && (
-                    <button
-                      className="btn btn-success"
-                      onClick={() => handleReserve(event)} // Aquí se realiza la reserva
-                    >
-                      Reservar Asiento
-                    </button>
+                  {ev.place && (
+                    <p className="card-text mb-1">
+                      <strong>Lugar:</strong> {ev.place}
+                    </p>
                   )}
+                  <p className="card-text mb-1">
+                    <strong>Tipo:</strong> Evento público
+                  </p>
+                  <p className="card-text mb-1">
+                    <strong>Asientos disponibles:</strong>{" "}
+                    {ev.guests ?? 0}
+                  </p>
+                  <p className="card-text mb-3">
+                    <strong>Precio entrada:</strong>{" "}
+                    {ev.price ? `Q ${ev.price}` : "Q 0.00"}
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => handleReserveSeat(ev)}
+                    disabled={
+                      ev.date < todayStr || !ev.guests || ev.guests <= 0
+                    }
+                  >
+                    {ev.date < todayStr
+                      ? "Evento pasado"
+                      : ev.guests && ev.guests > 0
+                      ? "Reservar asiento"
+                      : "Sin cupo"}
+                  </button>
                 </div>
               </div>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
