@@ -1,43 +1,31 @@
-// --- Persistencia en localStorage ---
-const LS_KEY = "sgv_events";
-
-function loadEvents() {
-  const raw = localStorage.getItem(LS_KEY);
-  if (raw) { try { return JSON.parse(raw); } catch {} }
-  return [
-    { id: 1, title: "boda de ana", date: "2026-02-14", place: "Santos Garden", price: 3500 },
-    { id: 2, title: "conferencia innovación", date: "2026-03-10", place: "Auditorio UFM", price: 0 },
-    { id: 3, title: "fiesta fin de año", date: "2026-12-15", place: "Santos Garden", price: 1200 },
-  ];
-}
-function saveEvents(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
-
-let _events = loadEvents();
-const wait = (ms = 200) => new Promise(r => setTimeout(r, ms));
+const API_URL = "http://localhost:4000/api/events";
 
 export const api = {
   async getEvents() {
-    await wait();
-    _events = loadEvents();
-    return [..._events];
+    const res = await fetch(API_URL);
+    return res.json();
   },
-  async createEvent(data) {
-    await wait();
-    const created = { ...data, id: Date.now() };
-    _events = [created, ..._events];
-    saveEvents(_events);
-    return created;
+
+  async createEvent(event) {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(event),
+    });
+    return res.json();
   },
-  async updateEvent(id, patch) {
-    await wait();
-    _events = _events.map(e => e.id === id ? { ...e, ...patch } : e);
-    saveEvents(_events);
-    return _events.find(e => e.id === id);
+
+  async updateEvent(id, event) {
+    const res = await fetch(`${API_URL}/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(event),
+    });
+    return res.json();
   },
+
   async deleteEvent(id) {
-    await wait();
-    _events = _events.filter(e => e.id !== id);
-    saveEvents(_events);
+    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
     return true;
-  },
+  }
 };
