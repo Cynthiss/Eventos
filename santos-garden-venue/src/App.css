@@ -85,3 +85,22 @@
   color: #ffffff !important;
   border-radius: 8px;
 }
+
+.form-check-label {
+  font-size: 0.95rem;
+}
+
+.card-event {
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #eee;
+}
+
+.card-event:hover {
+  border-color: #007bff;
+  transition: 0.2s;
+}
+
+select.form-select {
+  cursor: pointer;
+}
