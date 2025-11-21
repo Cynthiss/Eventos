@@ -8,26 +8,41 @@ export default function Admin() {
     date: "",
     guests: 0,
     price: 0,
-    type: "public", // público o privado
+    type: "public",
   });
   const [editingId, setEditingId] = useState(null);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
-  const [filterType, setFilterType] = useState("all"); // all | public | private
+  const [filterType, setFilterType] = useState("all");
 
-  // Hoy en formato YYYY-MM-DD
+  // Token del login
+  const token =
+    localStorage.getItem("sgv_token") ||
+    localStorage.getItem("token") ||
+    null;
+
+  // Fecha de hoy en formato YYYY-MM-DD
   const todayStr = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
-    api.getEvents().then(setEvents);
+    api.getEvents().then((data) => {
+      // Normalizar id a _id y fecha YYYY-MM-DD
+      const formatted = data.map((ev) => ({
+        ...ev,
+        id: ev._id,
+        date:
+          ev.date && typeof ev.date === "string"
+            ? ev.date.slice(0, 10)
+            : ev.date,
+      }));
+      setEvents(formatted);
+    });
   }, []);
 
-  // ¿La fecha ya está ocupada por otro evento?
+  // Verificar si la fecha está ocupada por otro evento
   const isDateTaken =
     form.date &&
-    events.some(
-      (ev) => ev.date === form.date && ev.id !== editingId
-    );
+    events.some((ev) => ev.date === form.date && ev.id !== editingId);
 
   const resetForm = () => {
     setForm({
@@ -46,41 +61,66 @@ export default function Admin() {
     setFormError("");
     setFormSuccess("");
 
-    // Fecha pasada
+    if (!token) {
+      setFormError("Debes iniciar sesión como administrador.");
+      return;
+    }
+
     if (form.date < todayStr) {
-      setFormError("No puedes crear o editar un evento con una fecha pasada.");
+      setFormError("No puedes usar una fecha pasada.");
       return;
     }
 
-    // Fecha ocupada
     if (isDateTaken) {
-      setFormError(
-        `La fecha ${form.date} ya tiene un evento programado. Elige otra fecha.`
-      );
+      setFormError(`La fecha ${form.date} ya está ocupada.`);
       return;
     }
 
-    if (!editingId) {
-      const created = await api.createEvent(form);
-      setEvents((prev) => [created, ...prev]);
-      setFormSuccess("Evento creado correctamente ✔️");
-    } else {
-      const updated = await api.updateEvent(editingId, form);
-      setEvents((prev) =>
-        prev.map((e) => (e.id === editingId ? updated : e))
-      );
-      setFormSuccess("Cambios guardados correctamente ✔️");
-    }
+    try {
+      let saved;
 
-    resetForm();
+      if (!editingId) {
+        saved = await api.createEvent(form, token);
+        saved = {
+          ...saved,
+          id: saved._id,
+          date: saved.date.slice(0, 10),
+        };
+        setEvents((prev) => [saved, ...prev]);
+        setFormSuccess("Evento creado correctamente ✔️");
+      } else {
+        saved = await api.updateEvent(editingId, form, token);
+        saved = {
+          ...saved,
+          id: saved._id,
+          date: saved.date.slice(0, 10),
+        };
+        setEvents((prev) =>
+          prev.map((e) => (e.id === editingId ? saved : e))
+        );
+        setFormSuccess("Evento actualizado correctamente ✔️");
+      }
+
+      resetForm();
+    } catch (err) {
+      setFormError(err.message || "Error al guardar el evento");
+    }
   };
 
   const onDelete = async (id) => {
-    await api.deleteEvent(id);
-    setEvents((prev) => prev.filter((e) => e.id !== id));
-    if (editingId === id) {
-      resetForm();
-      setFormSuccess("");
+    if (!token) {
+      setFormError("Debes iniciar sesión como administrador.");
+      return;
+    }
+
+    if (!window.confirm("¿Eliminar este evento?")) return;
+
+    try {
+      await api.deleteEvent(id, token);
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      if (editingId === id) resetForm();
+    } catch (err) {
+      setFormError(err.message || "Error al eliminar el evento");
     }
   };
 
@@ -103,67 +143,55 @@ export default function Admin() {
     setFormSuccess("");
   };
 
-  // ===========================
-  // FILTRO DE EVENTOS
-  // ===========================
   const filteredEvents = events.filter((ev) => {
     if (filterType === "public") return ev.type === "public";
     if (filterType === "private") return ev.type === "private";
-    return true; // all
+    return true;
   });
 
   return (
     <section className="my-5">
       <h2 className="mb-4 text-center">Panel de Administración</h2>
 
-      {/* Mensajes globales */}
-      {formError && (
-        <div className="alert alert-danger" role="alert">
-          {formError}
+      {!token && (
+        <div className="alert alert-warning">
+          No has iniciado sesión. Solo podrás ver los eventos.
         </div>
       )}
-      {formSuccess && (
-        <div className="alert alert-success" role="alert">
-          {formSuccess}
-        </div>
-      )}
+
+      {formError && <div className="alert alert-danger">{formError}</div>}
+      {formSuccess && <div className="alert alert-success">{formSuccess}</div>}
 
       {/* FORMULARIO */}
       <form className="mb-4" onSubmit={onSubmit}>
         <div className="row g-3 align-items-end">
-          {/* Fila 1: título + fecha + botón */}
           <div className="col-md-6">
-            <label className="form-label">Título del evento</label>
+            <label className="form-label">Título</label>
             <input
               className="form-control"
-              placeholder="Ej. Convivio, Conferencia UFM..."
               value={form.title}
-              onChange={(e) => {
-                setForm({ ...form, title: e.target.value });
-                setFormError("");
-                setFormSuccess("");
-              }}
+              onChange={(e) =>
+                setForm({ ...form, title: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="col-md-3">
-            <label className="form-label">Fecha del evento</label>
+            <label className="form-label">Fecha</label>
             <input
               type="date"
               className="form-control"
               value={form.date}
               min={todayStr}
-              onChange={(e) => {
-                setForm({ ...form, date: e.target.value });
-                setFormError("");
-                setFormSuccess("");
-              }}
+              onChange={(e) =>
+                setForm({ ...form, date: e.target.value })
+              }
               required
             />
-            {form.date && isDateTaken && (
+            {isDateTaken && (
               <small className="text-danger">
-                Ya existe un evento en esta fecha.
+                Ya existe un evento en esta fecha
               </small>
             )}
           </div>
@@ -179,54 +207,47 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Fila 2: asientos/invitados + precio + tipo + cancelar */}
+        {/* FILA 2 */}
         <div className="row g-3 align-items-end mt-1">
           <div className="col-md-3">
             <label className="form-label">
               {form.type === "public"
                 ? "Asientos disponibles"
-                : "Número de invitados"}
+                : "Invitados"}
             </label>
             <input
               type="number"
               className="form-control"
-              min="0"
-              placeholder={form.type === "public" ? "Ej. 45" : "Ej. 80"}
               value={form.guests}
+              min="0"
               onChange={(e) =>
                 setForm({ ...form, guests: Number(e.target.value) })
               }
-              required
             />
           </div>
 
           <div className="col-md-3">
-            <label className="form-label">Precio por entrada (Q)</label>
+            <label className="form-label">Precio (Q)</label>
             <input
               type="number"
               className="form-control"
-              min="0"
-              placeholder="Ej. 100"
               value={form.price}
+              min="0"
+              disabled={form.type === "private"}
               onChange={(e) =>
                 setForm({ ...form, price: Number(e.target.value) })
               }
-              required={form.type === "public"}
-              disabled={form.type === "private"}
             />
           </div>
 
           <div className="col-md-3">
-            <label className="form-label">Tipo de evento</label>
+            <label className="form-label">Tipo</label>
             <select
               className="form-select"
               value={form.type}
-              onChange={(e) => {
-                setForm({ ...form, type: e.target.value });
-                setFormError("");
-                setFormSuccess("");
-              }}
-              required
+              onChange={(e) =>
+                setForm({ ...form, type: e.target.value })
+              }
             >
               <option value="public">Público</option>
               <option value="private">Privado</option>
@@ -240,7 +261,7 @@ export default function Admin() {
                 className="btn btn-outline-secondary w-100"
                 onClick={cancelEdit}
               >
-                Cancelar edición
+                Cancelar
               </button>
             </div>
           )}
@@ -249,20 +270,17 @@ export default function Admin() {
 
       <hr className="my-4" />
 
-      {/* RESUMEN + FILTRO */}
-      <div className="d-flex flex-wrap justify-content-between align-items-center mb-3">
-        <div className="mb-2 mb-md-0">
+      {/* FILTRO */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <div>
           <h5 className="mb-0">Eventos registrados</h5>
           <small className="text-muted">
-            Total: {events.length}{" "}
-            {events.length === 1 ? "evento" : "eventos"} · Mostrando{" "}
-            {filteredEvents.length}
+            Total: {events.length} · Mostrando: {filteredEvents.length}
           </small>
         </div>
 
-        <div className="btn-group" role="group" aria-label="Filtro eventos">
+        <div className="btn-group">
           <button
-            type="button"
             className={`btn btn-sm ${
               filterType === "all"
                 ? "btn-primary"
@@ -273,7 +291,6 @@ export default function Admin() {
             Todos
           </button>
           <button
-            type="button"
             className={`btn btn-sm ${
               filterType === "public"
                 ? "btn-success"
@@ -284,7 +301,6 @@ export default function Admin() {
             Públicos
           </button>
           <button
-            type="button"
             className={`btn btn-sm ${
               filterType === "private"
                 ? "btn-secondary"
@@ -297,9 +313,9 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* LISTA DE EVENTOS (FILTRADOS) */}
+      {/* LISTA */}
       {filteredEvents.length === 0 ? (
-        <p className="text-muted">No hay eventos para este filtro.</p>
+        <p className="text-muted">No hay eventos.</p>
       ) : (
         <ul className="list-group">
           {filteredEvents.map((e) => (
@@ -308,12 +324,11 @@ export default function Admin() {
               className="list-group-item d-flex justify-content-between align-items-center"
             >
               <div>
-                <div>
-                  <strong>{e.title}</strong>{" "}
-                  <span className="badge bg-light text-dark ms-2">
-                    {e.date}
-                  </span>
-                </div>
+                <strong>{e.title}</strong>{" "}
+                <span className="badge bg-light text-dark ms-2">
+                  {e.date}
+                </span>
+
                 <small className="text-muted d-block mt-1">
                   {e.type === "public" ? (
                     <>
