@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:4000";
+// 🔥 URL de backend en Render
+const API_BASE = "https://santosgarden.onrender.com";
 
 export const api = {
   // =====================================
