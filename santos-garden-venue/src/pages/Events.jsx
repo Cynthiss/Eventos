@@ -1,7 +1,8 @@
-// src/components/Events.jsx
+// src/pages/Events.jsx
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
-import AvailabilityCalendar from "../components/AvailabilityCalendar"; // ajusta ruta si hace falta
+import { useAuth } from "../context/AuthContext.jsx";
+import AvailabilityCalendar from "../components/AvailabilityCalendar.jsx";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -10,358 +11,287 @@ export default function Events() {
   const [availabilityMsg, setAvailabilityMsg] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
 
-  // Filtros
-  const [onlyAvailable, setOnlyAvailable] = useState(false);
-  const [sortOption, setSortOption] = useState("dateAsc"); // dateAsc | dateDesc
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
+  const [sortBy, setSortBy] = useState("closest");
 
-  // Modal de reserva
+  const [modalOpen, setModalOpen] = useState(false);
   const [modalEvent, setModalEvent] = useState(null);
   const [modalQty, setModalQty] = useState(1);
   const [modalError, setModalError] = useState("");
 
-  // Cargar eventos desde la API
+  const { token } = useAuth();
+
   useEffect(() => {
-    api
-      .getEvents()
-      .then(setEvents)
-      .catch((err) => console.error("Error cargando eventos:", err));
+    api.getEvents().then(setEvents).catch(console.error);
   }, []);
 
-  const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10);
 
-  // ===========================
-  // FILTRADO Y ORDEN DE EVENTOS
-  // ===========================
-  const filteredPublicEvents = events
-    .filter((ev) => ev.type === "public")
-    .filter((ev) => {
-      const text = `${ev.title ?? ""}`.toLowerCase();
-      return text.includes(search.toLowerCase());
-    })
-    .filter((ev) => {
-      if (!onlyAvailable) return true;
-      return ev.guests && ev.guests > 0 && ev.date >= todayStr;
-    })
-    .slice()
-    .sort((a, b) => {
-      if (sortOption === "dateDesc") {
-        return b.date.localeCompare(a.date);
-      }
-      return a.date.localeCompare(b.date);
+  /* ======================================================
+        FILTRO DE EVENTOS
+  ====================================================== */
+  const filteredPublicEvents = (() => {
+    let list = events.filter((ev) => ev.type === "public");
+
+    if (search.trim()) {
+      list = list.filter((ev) =>
+        `${ev.title} ${ev.place ?? ""}`.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    if (showOnlyAvailable) {
+      list = list.filter((ev) => ev.guests > 0);
+    }
+
+    return list.sort((a, b) => {
+      if (sortBy === "closest") return new Date(a.date) - new Date(b.date);
+      if (sortBy === "priceLow") return (a.price || 0) - (b.price || 0);
+      if (sortBy === "priceHigh") return (b.price || 0) - (a.price || 0);
+      return 0;
     });
+  })();
 
-  // ===========================
-  // MODAL DE RESERVA
-  // ===========================
+  /* ======================================================
+        MODAL
+  ====================================================== */
   const openReserveModal = (ev) => {
     setStatusMsg("");
     setModalError("");
-    setModalQty(1);
+
+    if (!token) return setStatusMsg("Debes iniciar sesión para reservar asientos.");
+    if (ev.date < today) return setStatusMsg("No puedes reservar eventos pasados.");
+    if (ev.date === today) return setStatusMsg("No puedes reservar en el mismo día.");
+    if (ev.guests <= 0) return setStatusMsg("Este evento ya no tiene cupo.");
+
     setModalEvent(ev);
+    setModalQty(1);
+    setModalOpen(true);
   };
 
-  const closeReserveModal = () => {
+  const confirmReservation = async () => {
+    if (!modalEvent) return;
+
+    setModalError("");
+
+    const qty = Number(modalQty);
+    if (qty <= 0) return setModalError("Cantidad inválida.");
+    if (qty > modalEvent.guests)
+      return setModalError(`Solo hay ${modalEvent.guests} disponibles.`);
+
+    try {
+      const { reservation, updatedEvent } = await api.createReservation(
+        modalEvent._id,
+        qty,
+        token
+      );
+
+      setEvents((prev) =>
+        prev.map((e) => (e._id === updatedEvent._id ? updatedEvent : e))
+      );
+
+      setStatusMsg(`Reserva realizada con éxito. Asientos restantes: ${updatedEvent.guests}.`);
+
+      setModalOpen(false);
+      setModalEvent(null);
+      setModalQty(1);
+    } catch (err) {
+      setModalError(err.message || "Error desconocido.");
+    }
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
     setModalEvent(null);
     setModalQty(1);
     setModalError("");
   };
 
-  const confirmReserve = async () => {
-    if (!modalEvent) return;
-    const ev = modalEvent;
-    const qty = Number(modalQty);
-
-    // Usar el id que exista (_id o id)
-    const eventId = ev._id ?? ev.id;
-
-    // Validaciones
-    if (ev.date < todayStr) {
-      setModalError("No puedes reservar asientos en un evento que ya pasó.");
-      return;
-    }
-
-    if (!ev.guests || ev.guests <= 0) {
-      setModalError("Este evento ya no tiene asientos disponibles.");
-      return;
-    }
-
-    if (isNaN(qty) || qty <= 0) {
-      setModalError("Debes ingresar una cantidad válida de asientos.");
-      return;
-    }
-
-    if (qty > ev.guests) {
-      setModalError(
-        `Solo hay ${ev.guests} asientos disponibles. No puedes reservar ${qty}.`
-      );
-      return;
-    }
-
-    try {
-      // PATCH a /api/events/:id con el id correcto
-      const updated = await api.updateEvent(eventId, {
-        ...ev,
-        guests: ev.guests - qty,
-      });
-
-      // Actualizar estado local usando ese mismo id
-      setEvents((prev) =>
-        prev.map((e) => {
-          const currentId = e._id ?? e.id;
-          return currentId === eventId ? updated : e;
-        })
-      );
-
-      setStatusMsg(
-        `Reserva realizada con éxito. Asientos restantes: ${updated.guests}`
-      );
-      closeReserveModal();
-    } catch (err) {
-      console.error(err);
-      setModalError("Ocurrió un error al reservar los asientos.");
-    }
-  };
-
-  const totalEstimado =
-    modalEvent && modalQty
-      ? (modalEvent.price || 0) * Number(modalQty || 0)
-      : 0;
-
-  // ===========================
-  // CONSULTAR DISPONIBILIDAD DEL SALÓN
-  // ===========================
+  /* ======================================================
+        VERIFICAR FECHA DEL SALÓN
+  ====================================================== */
   const checkDateAvailability = () => {
     setAvailabilityMsg("");
 
-    if (!selectedDate) {
-      setAvailabilityMsg("Por favor selecciona una fecha.");
-      return;
-    }
+    if (!selectedDate)
+      return setAvailabilityMsg("Por favor selecciona una fecha.");
 
-    if (selectedDate < todayStr) {
-      setAvailabilityMsg("La fecha seleccionada ya pasó. Elige una fecha futura.");
-      return;
-    }
+    const selected = selectedDate;
 
-    const dateTaken = events.some((ev) => ev.date === selectedDate);
+    if (selected === today)
+      return setAvailabilityMsg("No puedes reservar el mismo día.");
 
-    if (dateTaken) {
-      setAvailabilityMsg(
-        `La fecha ${selectedDate} ya tiene un evento programado. Elige otra fecha.`
-      );
-    } else {
-      setAvailabilityMsg(
-        `La fecha ${selectedDate} está disponible para reservar el salón.`
-      );
-    }
+    if (selected < today)
+      return setAvailabilityMsg("La fecha ya pasó.");
+
+    const dateTaken = events.some((ev) => ev.date === selected);
+
+    setAvailabilityMsg(
+      dateTaken
+        ? `❌ La fecha ${selected} ya está ocupada.`
+        : `✅ La fecha ${selected} está disponible.`
+    );
   };
+
+  const totalEstimado =
+    modalEvent?.price ? modalQty * modalEvent.price : 0;
 
   return (
     <section className="container my-5">
-      <h1 className="text-center mb-2">Eventos</h1>
-      <p className="text-center text-muted mb-4">
-        Revisa la disponibilidad del salón y reserva asientos en eventos públicos.
-      </p>
+      <h1 className="text-center fw-bold mb-3">Eventos</h1>
 
-      {/* CALENDARIO */}
-      <AvailabilityCalendar events={events} />
-
-      {/* CARD DE FILTROS Y CONSULTA */}
-      <div className="d-flex justify-content-center mt-4">
-        <div
-          className="card shadow-sm border-0 w-100"
-          style={{ maxWidth: "900px" }}
-        >
-          <div className="card-body">
-            {/* BUSCADOR + ORDEN */}
-            <div className="row g-3 align-items-end mb-3">
-              <div className="col-md-7">
-                <label className="form-label">Buscar por título</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Ej. Convivio, Conferencia UFM..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <div className="col-md-5">
-                <label className="form-label">Ordenar por</label>
-                <select
-                  className="form-select"
-                  value={sortOption}
-                  onChange={(e) => setSortOption(e.target.value)}
-                >
-                  <option value="dateAsc">Fecha más cercana primero</option>
-                  <option value="dateDesc">Fecha más lejana primero</option>
-                </select>
-              </div>
-            </div>
-
-            {/* CHECKBOX SOLO DISPONIBLES */}
-            <div className="mb-4">
-              <div className="form-check">
-                <input
-                  id="onlyAvailable"
-                  className="form-check-input"
-                  type="checkbox"
-                  checked={onlyAvailable}
-                  onChange={(e) => setOnlyAvailable(e.target.checked)}
-                />
-                <label className="form-check-label" htmlFor="onlyAvailable">
-                  Mostrar solo eventos con asientos disponibles
-                </label>
-              </div>
-            </div>
-
-            {/* CONSULTAR DISPONIBILIDAD DEL SALÓN */}
-            <h6 className="mb-2">Consultar disponibilidad del salón</h6>
-            <div className="row g-3 mb-2">
-              <div className="col-md-6">
-                <input
-                  type="date"
-                  className="form-control"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                />
-              </div>
-              <div className="col-md-6">
-                <button
-                  className="btn btn-outline-primary w-100"
-                  onClick={checkDateAvailability}
-                >
-                  Verificar fecha
-                </button>
-              </div>
-            </div>
-            {availabilityMsg && (
-              <p className="mb-0 text-muted">{availabilityMsg}</p>
-            )}
+      {/* Calendario */}
+      <h3 className="section-title">Disponibilidad del salón</h3>
+      <div className="card shadow-sm p-4 mb-4">
+        <div className="row">
+          <div className="col-md-6 mx-auto">
+            <AvailabilityCalendar events={events} />
           </div>
         </div>
       </div>
 
-      {/* MENSAJE DE ESTADO DE RESERVA */}
-      {statusMsg && (
-        <div className="alert alert-info text-center mt-4" role="alert">
-          {statusMsg}
+      {/* Consultar fecha */}
+      <h3 className="section-title">Consultar fecha disponible</h3>
+      <div className="card shadow-sm p-4 mb-4">
+        <div className="row">
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">Selecciona una fecha</label>
+            <input
+              type="date"
+              value={selectedDate}
+              className="form-control"
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+          </div>
+
+          <div className="col-md-3 d-flex align-items-end">
+            <button className="btn btn-primary w-100" onClick={checkDateAvailability}>
+              Verificar fecha
+            </button>
+          </div>
+
+          <div className="col-md-5 d-flex align-items-end">
+            {availabilityMsg && <p className="mb-0">{availabilityMsg}</p>}
+          </div>
         </div>
-      )}
+      </div>
 
-      {/* LISTA DE EVENTOS PÚBLICOS */}
-      {filteredPublicEvents.length === 0 ? (
-        <p className="text-center mt-4">
-          No hay eventos públicos que coincidan con tu búsqueda o filtro.
-        </p>
-      ) : (
-        <div className="row mt-4">
-          {filteredPublicEvents.map((ev) => {
-            const keyId = ev._id ?? ev.id;
-            return (
-              <div key={keyId} className="col-md-6 mb-4">
-                <div className="card shadow-sm h-100">
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{ev.title}</h5>
-                    <p className="card-text mb-1">
-                      <strong>Fecha:</strong> {ev.date}
-                    </p>
-                    <p className="card-text mb-1">
-                      <strong>Asientos disponibles:</strong> {ev.guests ?? 0}
-                    </p>
-                    <p className="card-text mb-3">
-                      <strong>Precio entrada:</strong>{" "}
-                      {ev.price ? `Q ${ev.price}` : "Q 0.00"}
-                    </p>
-                    <div className="mt-auto">
-                      <button
-                        className="btn btn-primary w-100"
-                        onClick={() => openReserveModal(ev)}
-                        disabled={
-                          ev.date < todayStr || !ev.guests || ev.guests <= 0
-                        }
-                      >
-                        {ev.date < todayStr
-                          ? "Evento pasado"
-                          : ev.guests && ev.guests > 0
-                          ? "Reservar asiento"
-                          : "Sin cupo"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className="section-divider"></div>
 
-      {/* MODAL DE RESERVA */}
-      {modalEvent && (
-        <div
-          className="modal fade show d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Reservar asientos</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={closeReserveModal}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p className="mb-1">
-                  <strong>Evento:</strong> {modalEvent.title}
-                </p>
-                <p className="mb-1">
-                  <strong>Fecha:</strong> {modalEvent.date}
-                </p>
-                <p className="mb-3">
-                  <strong>Asientos disponibles:</strong> {modalEvent.guests}
-                </p>
+      {/* Filtros */}
+      <h3 className="section-title">Buscar y filtrar eventos públicos</h3>
+      <div className="card shadow-sm p-4 mb-4">
+        <div className="row g-3 align-items-end">
+          <div className="col-md-6">
+            <label className="form-label fw-semibold">Buscar</label>
+            <input
+              className="form-control"
+              value={search}
+              placeholder="Ej. Convivio, Conferencia..."
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-                {modalError && (
-                  <div className="alert alert-danger py-2">{modalError}</div>
-                )}
+          <div className="col-md-4">
+            <label className="form-label fw-semibold">Ordenar por</label>
+            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="closest">Fecha más cercana</option>
+              <option value="priceLow">Precio más bajo</option>
+              <option value="priceHigh">Precio más alto</option>
+            </select>
+          </div>
 
-                <div className="mb-3">
-                  <label className="form-label">Cantidad de asientos</label>
-                  <input
-                    type="number"
-                    className="form-control"
-                    min="1"
-                    max={modalEvent.guests}
-                    value={modalQty}
-                    onChange={(e) => setModalQty(e.target.value)}
-                  />
-                </div>
-
-                <p className="mb-0">
-                  <strong>Total estimado:</strong> Q {totalEstimado}
-                </p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={closeReserveModal}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={confirmReserve}
-                >
-                  Confirmar reserva
-                </button>
-              </div>
+          <div className="col-md-2">
+            <div className="form-check mt-4">
+              <input
+                className="form-check-input"
+                type="checkbox"
+                checked={showOnlyAvailable}
+                onChange={(e) => setShowOnlyAvailable(e.target.checked)}
+              />
+              <label className="form-check-label">Solo con cupo</label>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="section-divider"></div>
+
+      {/* Lista de eventos */}
+      <h3 className="section-title">Eventos públicos</h3>
+
+      {filteredPublicEvents.length === 0 ? (
+        <p className="text-center mt-4">No hay eventos disponibles.</p>
+      ) : (
+        <div className="row mt-3">
+          {filteredPublicEvents.map((ev) => (
+            <div key={ev._id} className="col-md-6 col-lg-4 mb-4">
+              <div className="card shadow-sm h-100 p-4 border-0" style={{ borderRadius: "18px" }}>
+                <h5 className="fw-bold">{ev.title}</h5>
+
+                <p><strong>Fecha:</strong> {ev.date}</p>
+                {ev.place && <p><strong>Lugar:</strong> {ev.place}</p>}
+                <p><strong>Asientos disponibles:</strong> {ev.guests}</p>
+                <p><strong>Precio:</strong> Q {ev.price}</p>
+
+                <button
+                  className="btn btn-primary w-100 mt-3"
+                  onClick={() => openReserveModal(ev)}
+                  disabled={ev.date <= today || ev.guests <= 0}
+                >
+                  {ev.date < today ? "Evento pasado" : ev.date === today ? "Hoy" : "Reservar asiento"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* =============== MODAL =============== */}
+      {modalOpen && modalEvent && (
+        <>
+          <div className="modal-backdrop show" style={{ opacity: 0.5 }}></div>
+
+          <div className="modal d-block" tabIndex="-1" style={{ backgroundColor: "rgba(0,0,0,0.3)" }}>
+            <div className="modal-dialog modal-dialog-centered">
+              <div className="modal-content">
+
+                <div className="modal-header">
+                  <h5 className="modal-title">Reservar asientos</h5>
+                  <button className="btn-close" onClick={closeModal}></button>
+                </div>
+
+                <div className="modal-body">
+                  <p>
+                    <strong>Evento:</strong> {modalEvent.title}<br />
+                    <strong>Fecha:</strong> {modalEvent.date}<br />
+                    <strong>Disponibles:</strong> {modalEvent.guests}
+                  </p>
+
+                  {modalError && <div className="alert alert-danger py-2">{modalError}</div>}
+
+                  <div className="mb-3">
+                    <label className="form-label">Cantidad</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      min="1"
+                      value={modalQty}
+                      onChange={(e) => setModalQty(e.target.value)}
+                    />
+                  </div>
+
+                  <p><strong>Total estimado:</strong> Q {totalEstimado}</p>
+                </div>
+
+                <div className="modal-footer">
+                  <button className="btn btn-secondary" onClick={closeModal}>Cancelar</button>
+                  <button className="btn btn-primary" onClick={confirmReservation}>Confirmar</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </section>
   );
