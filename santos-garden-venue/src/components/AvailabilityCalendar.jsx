@@ -1,17 +1,22 @@
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
-// IMPORTA App.css DESPUÉS del css del calendario
 import "../App.css";
 
 export default function AvailabilityCalendar({ events = [] }) {
   const takenDates = events.map((ev) => ev.date);
+  const today = new Date().toISOString().slice(0, 10);
 
   const tileClassName = ({ date }) => {
     const iso = date.toISOString().slice(0, 10);
-    if (takenDates.includes(iso)) {
-      return "date-taken";
-    }
-    return null;
+
+    // Días pasados → gris claro
+    if (iso < today) return "date-past";
+
+    // Ocupados → rojo
+    if (takenDates.includes(iso)) return "date-taken";
+
+    // Disponibles → verde en hover
+    return "date-available";
   };
 
   return (
