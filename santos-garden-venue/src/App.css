@@ -1,0 +1,1007 @@
+/* ---------------------------------------------------
+   ESTILO GLOBAL — Santos Garden Venue (Estilo 2)
+--------------------------------------------------- */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: #f8f8f8;
+  color: #1f1f1f;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* ---------------------------------------------------
+   NAVBAR
+--------------------------------------------------- */
+
+nav {
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 15px 0;
+}
+
+.navbar-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #c59d5f !important; /* dorado elegante */
+}
+
+.nav-link {
+  color: #444 !important;
+  font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #c59d5f !important;
+}
+
+/* ---------------------------------------------------
+   BOTONES
+--------------------------------------------------- */
+
+button, .btn {
+  border-radius: 10px !important;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #c59d5f !important;
+  border-color: #c59d5f !important;
+}
+
+.btn-primary:hover {
+  background: #a88245 !important;
+}
+
+/* ---------------------------------------------------
+   TARJETAS GENERALES
+--------------------------------------------------- */
+
+.card {
+  border: none;
+  border-radius: 14px;
+  padding: 25px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+}
+
+/* -----------------------------------------------
+   HOME PAGE
+------------------------------------------------ */
+
+.home-container {
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.home-container h1 {
+  font-size: 2.5rem;
+  color: #1a1a1a;
+}
+
+.home-container p {
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* ---------------------------------------------------
+   CALENDARIO (Eventos)
+--------------------------------------------------- */
+
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.react-calendar {
+  border: none !important;
+  padding: 10px;
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+}
+
+.date-taken {
+  background: #ff6b6b !important;
+  color: white !important;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.react-calendar__tile--active {
+  background: #c59d5f !important;
+  color: white !important;
+}
+
+/* ---------------------------------------------------
+   CARDS DE EVENTOS
+--------------------------------------------------- */
+
+.event-card {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  transition: 0.2s;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.event-card-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.event-card-date {
+  color: #666;
+}
+
+/* ---------------------------------------------------
+   FORMULARIO DE CONTACTO
+--------------------------------------------------- */
+
+.contact-container {
+  max-width: 650px;
+  margin: 40px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+}
+
+.contact-form label {
+  font-weight: 600;
+}
+
+.contact-form input,
+.contact-form textarea {
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid #cccccc;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: #c59d5f;
+  box-shadow: 0 0 5px rgba(197,157,95,0.5);
+}
+
+/* ---------------------------------------------------
+   PANEL ADMIN
+--------------------------------------------------- */
+
+.admin-panel {
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.admin-panel h1 {
+  font-size: 2.2rem;
+}
+
+/* ---------------------------------------------------
+   TABLAS MODERNAS
+--------------------------------------------------- */
+
+.table-modern {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.table-modern tr {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+
+.table-modern td, 
+.table-modern th {
+  padding: 14px 18px;
+}
+
+/* --------------------------------------------------- */
+
+/* ---------------------------------------------------
+   HOME — HERO
+--------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-top: 40px;
+}
+
+.hero-content {
+  text-align: left;
+  padding: 20px;
+}
+
+.hero-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  margin: 15px 0 25px;
+  color: #555;
+}
+
+.hero-btn {
+  padding: 14px 26px;
+  font-size: 1.1rem;
+  border-radius: 12px;
+}
+
+.hero-image {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-content {
+    text-align: center;
+  }
+}
+
+/* ---------------------------------------------------
+   FEATURES / SERVICIOS
+--------------------------------------------------- */
+
+.features {
+  margin-top: 80px;
+}
+
+.section-title {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+
+.feature-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.06);
+  text-align: center;
+  transition: 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.feature-icon {
+  font-size: 2.8rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* ---------------------------------------------------
+   CTA FINAL
+--------------------------------------------------- */
+
+.cta {
+  margin: 90px 0;
+  text-align: center;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.cta h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.cta p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.cta-btn {
+  padding: 14px 26px;
+  font-size: 1.1rem;
+}
+
+/* ---------------------------------------------------
+   NAVBAR MODERNO
+--------------------------------------------------- */
+
+.navbar-main {
+  width: 100%;
+  background: #ffffff;
+  padding: 16px 0;
+  border-bottom: 1px solid #f1f1f1;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.navbar-container {
+  max-width: 1350px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+
+.navbar-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links a {
+  text-decoration: none;
+  font-weight: 500;
+  color: #444;
+  transition: 0.2s;
+}
+
+.navbar-links a:hover {
+  color: #c59d3f; /* dorado elegante */
+}
+
+.navbar-links .active {
+  color: #c59d3f;
+  font-weight: 600;
+}
+
+/* Usuario */
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.user-info {
+  text-align: right;
+}
+
+.user-name {
+  font-weight: 600;
+  display: block;
+  color: #1a1a1a;
+}
+
+.user-email {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+/* Botón logout */
+
+.btn-logout {
+  border: none;
+  background: #e53935;
+  color: white;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-logout:hover {
+  background: #c62828;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+
+  .navbar-links {
+    display: none;
+  }
+
+  .navbar-main {
+    padding: 14px;
+  }
+
+  .navbar-user {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+}
+
+/* ============================================
+   ESTILOS PREMIUM PARA LA PÁGINA DE EVENTOS
+   Blanco + Negro + Dorado (Estilo 5)
+============================================ */
+
+section.container {
+  max-width: 1200px;
+}
+
+/* === TÍTULOS === */
+h1.text-center {
+  font-size: 2.7rem !important;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.text-muted {
+  color: #555 !important;
+}
+
+/* === CALENDARIO === */
+.react-calendar {
+  width: 100%;
+  background: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.react-calendar__navigation button {
+  color: #c8a951 !important;
+  font-weight: 600;
+}
+
+.react-calendar__tile--active {
+  background: #c8a951 !important;
+  color: #fff !important;
+  border-radius: 10px;
+}
+
+.date-taken,
+.date-taken:hover {
+  background: #e85d5d !important;
+  color: white !important;
+  border-radius: 10px;
+}
+
+/* === FILTROS === */
+.form-label {
+  font-weight: 600;
+  color: #222;
+}
+
+.form-control,
+.form-select {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  transition: 0.2s;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #c8a951;
+  box-shadow: 0 0 6px rgba(200, 169, 81, 0.4);
+}
+
+/* === BOTONES === */
+.btn-outline-primary {
+  border-color: #c8a951;
+  color: #c8a951;
+}
+
+.btn-outline-primary:hover {
+  color: white;
+  background: #c8a951;
+}
+
+.btn-primary {
+  background: #c8a951 !important;
+  border: none;
+}
+
+.btn-primary:hover {
+  background: #b0903f !important;
+}
+
+/* === TARJETAS DE EVENTO === */
+.card {
+  border: none;
+  border-radius: 14px;
+  transition: 0.25s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.card-title {
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+.card-text strong {
+  color: #c8a951;
+}
+
+/* === TEXTO DE "SIN EVENTOS" === */
+p.text-center.mt-4 {
+  font-size: 1.2rem;
+  color: #777;
+}
+
+/* === MODAL === */
+.modal-content {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+  border-bottom: none;
+}
+
+.modal-title {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.modal-footer {
+  border-top: none;
+}
+
+.alert-danger {
+  border-radius: 10px;
+}
+
+/* === CHECKBOX === */
+.form-check-input:checked {
+  background-color: #c8a951;
+  border-color: #c8a951;
+}
+
+/* === LEYENDAS DEL CALENDARIO === */
+.calendar-legend span {
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.legend-red {
+  background: #e85d5d;
+  color: white;
+}
+
+.legend-green {
+  background: #22b14c;
+  color: white;
+}
+
+
+/* =======================================
+   CONTACT FORM — ESTILO PREMIUM
+======================================== */
+
+.contact-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.contact-box {
+  background: white;
+  padding: 45px 35px;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid #ececec;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.contact-title {
+  text-align: center;
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.contact-subtitle {
+  text-align: center;
+  color: #6b6b6b;
+  margin-top: 6px;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  font-size: 1rem;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #c8a951;
+  outline: none;
+  box-shadow: 0 0 6px rgba(200, 169, 81, 0.35);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.btn-contact {
+  background: #c8a951;
+  border: none;
+  color: white;
+  padding: 14px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-contact:hover {
+  background: #b39042;
+}
+
+.contact-status {
+  margin-top: 18px;
+  text-align: center;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+/* =======================================
+   LOGIN — ESTILO PREMIUM ELEGANTE
+======================================== */
+
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 70px 20px;
+  background: #ffffff;
+}
+
+.login-card {
+  background: #fff;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 35px;
+  border-radius: 20px;
+  border: 1px solid #ececec;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+.login-title {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.login-subtitle {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-form label {
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  font-size: 1rem;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.login-form input:focus {
+  border-color: #c8a951;
+  box-shadow: 0 0 6px rgba(200, 169, 81, 0.35);
+  outline: none;
+  background: #fff;
+}
+
+.btn-login {
+  background: #c8a951;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-login:hover {
+  background: #b39042;
+}
+
+.login-status {
+  margin-top: 15px;
+  font-weight: 600;
+  color: #bb3535;
+}
+
+.book-venue-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.book-venue-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.calendar-wrapper {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.date-taken {
+  background-color: #ffb3b3 !important;
+  border-radius: 8px;
+  color: white !important;
+}
+
+.date-selected {
+  background-color: #2563eb !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+.venue-form {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* ====== MIS RESERVAS (Estilo Moderno) ====== */
+
+/* GRID con columnas automáticas */
+.reservation-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+  gap: 24px !important;
+  margin-top: 20px !important;
+}
+
+/* CARD moderna */
+.reservation-card {
+  background: #fff !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid #f1f1f1 !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.reservation-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Títulos */
+.reservation-title {
+  font-size: 1.2rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 10px !important;
+}
+
+/* Texto */
+.reservation-text {
+  font-size: 0.95rem !important;
+  margin: 4px 0 !important;
+}
+
+/* Fecha */
+.reservation-date {
+  margin-top: 12px !important;
+  font-size: 0.85rem !important;
+  color: #6c757d !important;
+}
+
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: #e5e5e5;
+  margin: 40px 0;
+}
+
+.section-title {
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+/* ================================
+   SECCIONES GENERALES
+================================ */
+.section-title {
+  font-weight: 700;
+  font-size: 1.45rem;
+  margin-bottom: 16px;
+  margin-top: 50px;
+}
+
+.section-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0px 3px 14px rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
+}
+
+/* Divisor elegante */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: #e6e6e6;
+  margin: 40px 0;
+}
+
+/* ================================
+   FILTROS
+================================ */
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px;
+  grid-gap: 20px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 6px;
+}
+
+/* ================================
+   EVENT CARDS
+================================ */
+.event-card {
+  border-radius: 18px !important;
+  padding: 26px !important;
+  transition: transform 0.15s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-3px);
+}
+
+.event-card h5 {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.event-info {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+}
+
+.event-label {
+  font-weight: 600;
+  color: #555;
+}
+
+/* ================================
+   BOTONES EVENTOS
+================================ */
+.btn-event {
+  background-color: #c9a44f;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.btn-event:disabled {
+  background-color: #ddd !important;
+  color: #777 !important;
+}
+
+/* Días pasados */
+.date-past {
+  background-color: #f0f0f0 !important;
+  color: #999 !important;
+  cursor: not-allowed !important;
+}
+
+/* Días ocupados (rojo) */
+.date-taken {
+  background-color: #f76c6c !important;
+  color: white !important;
+  border-radius: 8px;
+}
+
+/* Días disponibles */
+.date-available {
+  background-color: #e9ffe9 !important;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+
+/* Hover verde */
+.date-available:hover {
+  background-color: #4CAF50 !important;
+  color: white !important;
+}
