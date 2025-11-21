@@ -1,57 +1,39 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
 
-// --- Configuración ---
+dotenv.config();
+
+import authRouter from "./routes/auth.js";
+import eventsRouter from "./routes/events.js";
+import reservationsRouter from "./routes/reservations.js";
+
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-// --- Conexión a MongoDB ---
+// ===============================
+//   CONEXIÓN A MONGODB ATLAS
+// ===============================
+const mongoURI = process.env.MONGO_URI;
+
 mongoose
-  .connect("mongodb://localhost:27017/santos_garden")
-  .then(() => console.log("MongoDB conectado ✔"))
-  .catch((err) => console.error("Error en MongoDB:", err));
+  .connect(mongoURI)
+  .then(() => console.log("MongoDB Atlas conectado ✔"))
+  .catch((err) =>
+    console.error("❌ Error al conectar MongoDB Atlas:", err)
+  );
 
-// --- Modelo de evento ---
-const eventSchema = new mongoose.Schema({
-  title: String,
-  date: String,
-  place: String,
-  guests: Number,
-  price: Number,
-  type: String, // "public" o "private"
+// Rutas
+app.use("/auth", authRouter);
+app.use("/api/events", eventsRouter);
+app.use("/api/reservations", reservationsRouter);
+
+// Puerto
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => {
+  console.log(`API escuchando en http://localhost:${PORT}`);
 });
-
-const Event = mongoose.model("Event", eventSchema);
-
-// --- ENDPOINTS REST ---
-// Obtener todos los eventos
-app.get("/api/events", async (req, res) => {
-  const events = await Event.find();
-  res.json(events);
-});
-
-// Crear evento
-app.post("/api/events", async (req, res) => {
-  const event = new Event(req.body);
-  await event.save();
-  res.json(event);
-});
-
-// Actualizar evento
-app.patch("/api/events/:id", async (req, res) => {
-  const updated = await Event.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
-  res.json(updated);
-});
-
-// Eliminar evento
-app.delete("/api/events/:id", async (req, res) => {
-  await Event.findByIdAndDelete(req.params.id);
-  res.json({ message: "Evento eliminado" });
-});
-
-// --- Iniciar servidor ---
-app.listen(4000, () => console.log("API escuchando en http://localhost:4000"));

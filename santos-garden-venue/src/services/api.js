@@ -1,47 +1,151 @@
-const API_URL = "http://localhost:4000/api/events";
-
-// Función para normalizar el objeto que viene de Mongo
-const normalizeEvent = (ev) => ({
-  id: ev._id || ev.id,
-  title: ev.title,
-  date: ev.date,
-  guests: ev.guests,
-  price: ev.price,
-  type: ev.type,
-});
+const API_BASE = "http://localhost:4000";
 
 export const api = {
+  // =====================================
+  //               EVENTOS
+  // =====================================
   async getEvents() {
-    const res = await fetch(API_URL);
-    const data = await res.json();
-    // Devolvemos todos los eventos ya normalizados
-    return data.map(normalizeEvent);
+    const res = await fetch(`${API_BASE}/api/events`);
+    if (!res.ok) throw new Error("Error al cargar eventos");
+    return res.json();
   },
 
-  async createEvent(event) {
-    const res = await fetch(API_URL, {
+  async createEvent(event, token) {
+    const res = await fetch(`${API_BASE}/api/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(event),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al crear evento");
+    }
+
+    return res.json();
+  },
+
+  async updateEvent(id, event, token) {
+    const res = await fetch(`${API_BASE}/api/events/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(event),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al actualizar evento");
+    }
+
+    return res.json();
+  },
+
+  async deleteEvent(id, token) {
+    const res = await fetch(`${API_BASE}/api/events/${id}`, {
+      method: "DELETE",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al eliminar evento");
+    }
+
+    return true;
+  },
+
+  // =====================================
+  //   RESERVA DEL SALÓN (CONTACT PAGE)
+  // =====================================
+  async createSalonReservation(data, token) {
+    const res = await fetch(`${API_BASE}/api/reservations/salon`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al crear la reserva del salón");
+    }
+
+    return res.json();
+  },
+
+  // =====================================
+  //  RESERVAS PARA EVENTOS (ASIENTOS)
+  // =====================================
+  async createReservation(eventId, seats, token) {
+    const res = await fetch(`${API_BASE}/api/reservations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ eventId, seats }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al crear la reserva");
+    }
+
+    return res.json();
+  },
+
+  async getMyReservations(token) {
+    const res = await fetch(`${API_BASE}/api/reservations/my`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al obtener reservas");
+    }
+
+    return res.json();
+  },
+
+  async getAllReservations(token) {
+    const res = await fetch(`${API_BASE}/api/reservations/all`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || "Error al obtener todas las reservas");
+    }
+
+    return res.json();
+  },
+
+  // =====================================
+  //              LOGIN
+  // =====================================
+  async login(email, password) {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(event),
+      body: JSON.stringify({ email, password }),
     });
-    const data = await res.json();
-    // Normalizamos el creado
-    return normalizeEvent(data);
-  },
 
-  async updateEvent(id, event) {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(event),
-    });
-    const data = await res.json();
-    // Normalizamos el actualizado
-    return normalizeEvent(data);
-  },
+    if (!res.ok) throw new Error("Error en login");
 
-  async deleteEvent(id) {
-    await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    return true;
+    return res.json();
   },
 };
